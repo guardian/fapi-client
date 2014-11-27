@@ -5,4 +5,6 @@ trait FaciaConfig {
   def accessKey: String
   def secretKey: String
   def bucket: String
+
+  def root: String = s"https://s3-eu-west-1.amazonaws.com/$bucket/$stage/frontsapi"
 }

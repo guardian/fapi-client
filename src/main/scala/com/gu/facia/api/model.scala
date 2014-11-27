@@ -11,8 +11,8 @@ case class Front(
   webTitle: Option[String],
   title: Option[String],
   description: Option[String],
-  collectionsIds: List[String],
-  priority: ??   // is this important?
+  collectionIds: List[String]
+//  priority: ??   // is this important?
   // etc
 )
 
@@ -59,5 +59,3 @@ sealed trait Kicker
 class TagKicker(tag: String) extends Kicker
 class SectionKicker(section: String) extends Kicker
 class CustomKicker(text: String) extends Kicker
-
-
