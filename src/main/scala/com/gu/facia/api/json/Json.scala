@@ -1,8 +1,7 @@
-package com.gu.facia.api
-
-
+package com.gu.facia.api.json
 
 import com.gu.facia.api.Response.{Left, Right}
+import com.gu.facia.api.{ApiError, Response}
 import org.json4s.JsonAST.JValue
 import org.json4s.ParserUtil.ParseException
 import org.json4s._

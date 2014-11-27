@@ -1,12 +1,14 @@
 package com.gu.facia.api.facia
 
-import com.gu.facia.api.{ApiError, Front, Json, Response}
 import com.gu.facia.api.Response.Async.Right
 import com.gu.facia.api.config.FaciaConfig
-import com.gu.facia.api.http.DispatchHandlers
+import com.gu.facia.api.http.HttpResponse
+import com.gu.facia.api.json.Json
+import com.gu.facia.api.{ApiError, Front, Response}
 import org.json4s.JsonAST.{JObject, JValue}
 
 import scala.concurrent.ExecutionContext
+
 
 object Facia {
   implicit val formats = org.json4s.DefaultFormats
@@ -14,7 +16,7 @@ object Facia {
   def getFrontsConfig(implicit dispatchClient: dispatch.Http, config: FaciaConfig, ec: ExecutionContext): Response[JValue] = {
     val req = dispatch.url(s"${config.root}/config/config.json")
     for {
-      rawResponse <- Right(dispatchClient(req.toRequest, DispatchHandlers.asHttpResponse))
+      rawResponse <- Right(dispatchClient(req.toRequest, HttpResponse.dispatchHandler))
       json <- Json.toJson(rawResponse.body)
     } yield json
   }
