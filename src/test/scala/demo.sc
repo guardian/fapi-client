@@ -16,8 +16,14 @@ implicit object FaciaConfig extends FaciaConfig {
   override def secretKey: String = ""
 }
 
-val result = FAPI.frontForPath("uk/business").fold(
-  { front => s"found front: $front" },
-  { err => s"errror: $err"}
+val frontResult = FAPI.frontForPath("uk/business").fold(
+  { err => s"error: $err"},
+  { front => s"found front: $front" }
 )
-Await.result(result, 1.second)
+Await.result(frontResult, 1.second)
+
+val frontsResult = FAPI.getFronts().fold(
+  { err => s"error fetching fronts: $err"},
+  { fronts => s"found fronts: $fronts" }
+)
+Await.result(frontsResult, 1.second)

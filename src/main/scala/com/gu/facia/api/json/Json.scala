@@ -14,7 +14,7 @@ object Json {
       Right(parse(string))
     } catch {
       case e: ParseException =>
-        Left(ApiError("Error parsing response JSON", 500))
+        Left(ApiError("Error parsing response JSON", "", 500))
     }
   }
 }

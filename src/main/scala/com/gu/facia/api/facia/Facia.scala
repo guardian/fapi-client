@@ -13,12 +13,17 @@ import scala.concurrent.ExecutionContext
 object Facia {
   implicit val formats = org.json4s.DefaultFormats
 
-  def getFrontsConfig(implicit dispatchClient: dispatch.Http, config: FaciaConfig, ec: ExecutionContext): Response[JValue] = {
-    val req = dispatch.url(s"${config.root}/config/config.json")
-    for {
-      rawResponse <- Right(dispatchClient(req.toRequest, HttpResponse.dispatchHandler))
-      json <- Json.toJson(rawResponse.body)
-    } yield json
+  def extractFronts(frontsJson: JValue): Response[Set[Front]] = {
+    Response.Right((frontsJson \ "fronts").extract[Map[String, JValue]].map { case (frontPath, frontJson) =>
+      Front(
+        id = frontPath,
+        webTitle = (frontJson \ "webTitle").extractOpt[String],
+        title = (frontJson \ "title").extractOpt[String],
+        description = (frontJson \ "description").extractOpt[String],
+        onPageDescription = (frontJson \ "onPageDescription").extractOpt[String],
+        collectionIds = (frontJson \ "collections").extract[List[String]]
+      )
+    } toSet)
   }
 
   /**
@@ -31,6 +36,7 @@ object Facia {
         webTitle = (frontJson \ "webTitle").extractOpt[String],
         title = (frontJson \ "title").extractOpt[String],
         description = (frontJson \ "description").extractOpt[String],
+        onPageDescription = (frontJson \ "onPageDescription").extractOpt[String],
         collectionIds = (frontJson \ "collections").extract[List[String]]
       )
     }

@@ -11,6 +11,7 @@ case class Front(
   webTitle: Option[String],
   title: Option[String],
   description: Option[String],
+  onPageDescription: Option[String],
   collectionIds: List[String]
 //  priority: ??   // is this important?
   // etc
