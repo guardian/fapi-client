@@ -18,6 +18,10 @@ case class Response[A] private (underlying: Future[Either[ApiError, A]]) {
     asFuture.map(_.fold(failure, success))
   }
 
+  def recover(pf: ApiError => ApiError)(implicit ec: ExecutionContext): Response[A] = Response {
+    fold(err => Left(pf(err)), Right(_))
+  }
+
   def asFuture(implicit ec: ExecutionContext) = {
     underlying recover { case err =>
       val apiError = ApiError.unexpected(err.getMessage)

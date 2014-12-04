@@ -1545,7 +1545,10 @@
       "displayName" : "popular in comment",
       "apiQuery" : "uk/commentisfree?show-most-viewed=true&show-editors-picks=false&hide-recent-content=true",
       "type" : "news/most-popular",
-      "uneditable" : true
+      "hideKickers": true,
+      "showTags": true,
+      "uneditable": true,
+      "showDateHeader": true
     },
     "3b6c3b04-0f6e-4679-80f6-97967de8eb61" : {
       "displayName" : "Xero partner zone ",

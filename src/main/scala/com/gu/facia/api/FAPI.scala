@@ -1,16 +1,23 @@
 package com.gu.facia.api
 
 import com.gu.contentapi.client.GuardianContentClient
-import com.gu.facia.api.Response.Async._
 import com.gu.facia.api.config.FaciaConfig
+import com.gu.facia.api.contentapi.ContentApi
+import com.gu.facia.api.contentapi.ContentApi.AdjustSearchQuery
 import com.gu.facia.api.facia.Facia
-import com.gu.facia.api.http.HttpResponse
-import com.gu.facia.api.json.Json
 
 import scala.concurrent.ExecutionContext
 
 
 object FAPI {
+
+  def getFronts()(implicit capiClient: GuardianContentClient, dispatchClient: dispatch.Http, config: FaciaConfig, ec: ExecutionContext): Response[Set[Front]] = {
+    for {
+      json <- Facia.getFrontsJson
+      fronts <- Facia.extractFronts(json)
+    } yield fronts
+  }
+
   def frontForPath(path: String)(implicit capiClient: GuardianContentClient, dispatchClient: dispatch.Http, config: FaciaConfig, ec: ExecutionContext): Response[Front] = {
     for {
       fronts <- getFronts
@@ -18,16 +25,21 @@ object FAPI {
     } yield front
   }
 
-  def getFronts()(implicit capiClient: GuardianContentClient, dispatchClient: dispatch.Http, config: FaciaConfig, ec: ExecutionContext): Response[Set[Front]] = {
-    val req = dispatch.url(s"${config.root}/config/config.json")
+  def getCollection(id: String, adjustSearchQuery: AdjustSearchQuery = ContentApi.doNotChangeSearchQuery)
+                   (implicit capiClient: GuardianContentClient, dispatchClient: dispatch.Http, config: FaciaConfig, ec: ExecutionContext): Response[Collection] = {
+    val fCollectionJson = Facia.getCollectionJson(id)
+    val fFrontsJson = Facia.getFrontsJson
     for {
-      rawResponse <- Right(dispatchClient(req.toRequest, HttpResponse.dispatchHandler))
-      json <- Json.toJson(rawResponse.body)
-      fronts <- Facia.extractFronts(json)
-    } yield fronts
-  }
-
-  def getCollection(id: String)(implicit capiClient: GuardianContentClient, config: FaciaConfig, ec: ExecutionContext): Response[Collection] = {
+      frontsJson <- fFrontsJson
+      collectionJson <- fCollectionJson
+      rawCollection = Facia.getCollection(id, collectionJson)
+      itemIds = Facia.itemIds(rawCollection)
+      hydrateQuery = adjustSearchQuery(ContentApi.buildHydrateQuery(capiClient, itemIds))
+      hydrateResponse <- ContentApi.getHydrateResponse(capiClient, hydrateQuery)
+      semiRawCollection <- Facia.extendRawCollection(frontsJson, rawCollection)
+    } yield {
+      1
+    }
     ???
   }
 }
