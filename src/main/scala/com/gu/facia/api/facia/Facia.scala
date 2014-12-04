@@ -70,6 +70,12 @@ object Facia {
     RawCollection(id, rawCards, updated)
   }
 
+  def itemIds(rawCollection: RawCollection): List[String] = {
+    rawCollection.rawCards.flatMap { rawCard =>
+      rawCard.id :: rawCard.supporting.map(_.id)
+    }
+  }
+
   /**
    * Extracts a "raw" facia card instance from the collection JSON. This raw card will then be
    * hydrated using CAPI.
@@ -147,12 +153,6 @@ object Facia {
           showDateHeader = (collectionMetadataJson \ "showDateHeader").extractOpt[Boolean].getOrElse(false)
         )
       )
-    }
-  }
-
-  def itemIds(rawCollection: RawCollection): List[String] = {
-    rawCollection.rawCards.flatMap { rawCard =>
-      rawCard.id :: rawCard.supporting.map(_.id)
     }
   }
 }
