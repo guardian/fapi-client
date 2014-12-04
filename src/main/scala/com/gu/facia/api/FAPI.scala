@@ -21,7 +21,7 @@ object FAPI {
   def frontForPath(path: String)(implicit capiClient: GuardianContentClient, dispatchClient: dispatch.Http, config: FaciaConfig, ec: ExecutionContext): Response[Front] = {
     for {
       fronts <- getFronts
-      front <- Response.fromOption(fronts.find(_.id == path), ApiError.notFound)
+      front <- Response.fromOption(fronts.find(_.id == path), NotFound(s"Not front found for $path"))
     } yield front
   }
 

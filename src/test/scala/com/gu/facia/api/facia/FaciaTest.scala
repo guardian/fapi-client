@@ -17,7 +17,7 @@ class FaciaTest extends FreeSpec with ShouldMatchers with ResourcesHelper with O
   "frontForPath" - {
     "will return a 'not found' response if no front exists for the path" in {
       Facia.frontForPath("test-path-does-not-exist", frontsConfig).asFuture.futureValue.fold(
-        { err => err.statusCode should equal(404) },
+        { err => err shouldBe an[NotFound] },
         { front => fail("Unexpectedly found a front") }
       )
     }
@@ -284,7 +284,7 @@ class FaciaTest extends FreeSpec with ShouldMatchers with ResourcesHelper with O
     "fails if the collection is not found in the fronts config" in {
       val rawCollection = RawCollection("test-id-not-present", Nil, Updated(None, "name", "email"))
       Facia.extendRawCollection(frontsConfig, rawCollection).asFuture.futureValue.fold(
-        err => err.statusCode should equal(404),
+        err => err shouldBe an[NotFound],
         c => fail(s"expected failure, instead got collection $c")
       )
     }

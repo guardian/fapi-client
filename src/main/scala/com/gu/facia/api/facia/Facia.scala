@@ -41,7 +41,7 @@ object Facia {
       }.toSet
       Response.Right(fronts)
     } catch {
-      case e: MappingException => Response.Left(ApiError("Malformed fronts JSON", "Unable to extract fronts from provided fronts JSON", 500))
+      case e: MappingException => Response.Left(JsonError("Unable to extract fronts from provided fronts JSON", Some(e)))
     }
   }
 
@@ -51,7 +51,7 @@ object Facia {
   def frontForPath(path: String, frontsJson: JValue)(implicit ec: ExecutionContext): Response[Front] = {
     for {
       frontOpt <- extractFronts(frontsJson).map(_.find(_.id == path))
-      front <- frontOpt.map(Response.Right).getOrElse(Response.Left(ApiError.notFound))
+      front <- frontOpt.map(Response.Right).getOrElse(Response.Left(NotFound(s"Front $path not found in fronts JSON")))
     } yield front
   }
 
@@ -111,7 +111,7 @@ object Facia {
        )
       ))
     } catch {
-      // TODO: logging
+      // TODO: really this should return a Response not an Option
       case e: NumberFormatException =>
         println(e)
         None
@@ -125,11 +125,11 @@ object Facia {
     for {
       collectionMetadataJson <- Response.fromOption(
         (frontJson \ "collections" \ rawCollection.id).extractOpt[JObject],
-        ApiError("Collection metadata not available", "Could not find collection metadata in fronts config.json", 404)
+        NotFound(s"Could not find collection metadata for ${rawCollection.id} in fronts config.json")
       )
       displayName <- Response.fromOption(
         (collectionMetadataJson \ "displayName").extractOpt[String],
-        ApiError("Collection metadata missing displayName", s"Could not find displayName for ${rawCollection.id} in fronts config", 500)
+        DataError(s"Could not find displayName for ${rawCollection.id} in fronts config")
       )
     } yield {
       SemiRawCollection(

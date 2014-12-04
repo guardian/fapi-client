@@ -2,7 +2,7 @@ package com.gu.facia.api.http
 
 import com.gu.facia.api.Response.Async._
 import com.gu.facia.api.json.Json
-import com.gu.facia.api.{ApiError, Response}
+import com.gu.facia.api.{HttpError, ApiError, Response}
 import com.ning.http.client.Request
 import dispatch.FunctionHandler
 import org.json4s.JsonAST.JValue
@@ -18,7 +18,7 @@ object HttpResponse {
 
   def okToRight(response: HttpResponse): Response[HttpResponse] = {
     if (response.statusCode < 400) Response.Right(response)
-    else Response.Left(ApiError("Request returned bad response code", response.body, response.statusCode))
+    else Response.Left(HttpError(s"Request failed with status code ${response.statusCode}"))
   }
 
   def jsonResponse(request: Request, client: dispatch.Http)(implicit executionContext: ExecutionContext): Response[JValue] = {

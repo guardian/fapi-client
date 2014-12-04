@@ -24,7 +24,7 @@ case class Response[A] private (underlying: Future[Either[ApiError, A]]) {
 
   def asFuture(implicit ec: ExecutionContext) = {
     underlying recover { case err =>
-      val apiError = ApiError.unexpected(err.getMessage)
+      val apiError = Unexpected(err.getMessage, Some(err))
       scala.Left(apiError)
     }
   }
@@ -48,8 +48,13 @@ object Response {
   }
 }
 
-case class ApiError(message: String, details: String, statusCode: Int)
-object ApiError {
-  val notFound = ApiError("Not found", "Not found", 404)
-  def unexpected(details: String) = ApiError("Unexpected error", details, 500)
+sealed trait ApiError {
+  def message: String
+  def cause: Option[Throwable]
 }
+case class NotFound(message: String = "Not found", cause: Option[Throwable] = None) extends ApiError
+case class Unexpected(message: String, cause: Option[Throwable] = None) extends ApiError
+case class JsonError(message: String, cause: Option[Throwable] = None) extends ApiError
+case class DataError(message: String, cause: Option[Throwable] = None) extends ApiError
+case class CapiError(message: String, cause: Option[Throwable] = None) extends ApiError
+case class HttpError(message: String, cause: Option[Throwable] = None) extends ApiError

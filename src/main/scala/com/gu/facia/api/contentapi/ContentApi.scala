@@ -4,7 +4,7 @@ import java.net.URI
 
 import com.gu.contentapi.client.{GuardianContentApiError, GuardianContentClient}
 import com.gu.contentapi.client.model._
-import com.gu.facia.api.{ApiError, Response}
+import com.gu.facia.api.{CapiError, ApiError, Response}
 import org.json4s.MappingException
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -23,7 +23,7 @@ object ContentApi {
 
   def getHydrateResponse(client: GuardianContentClient, searchQuery: SearchQuery)(implicit ec: ExecutionContext): Response[SearchResponse] = {
     Response.Async.Right(client.getResponse(searchQuery)) recover { err =>
-      ApiError("Failed to hydrate", s"Received status code ${err.statusCode} from CAPI", err.statusCode)
+      CapiError(s"Failed to hydrate content ${err.message}", err.cause)
     }
   }
 
