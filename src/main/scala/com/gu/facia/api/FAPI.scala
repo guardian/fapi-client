@@ -26,7 +26,7 @@ object FAPI {
     } yield front
   }
 
-  def getCollection(id: String, adjustSearchQuery: AdjustSearchQuery = ContentApi.doNotChangeSearchQuery)
+  def getCollection(id: String, adjustSearchQuery: AdjustSearchQuery = identity)
                    (implicit capiClient: GuardianContentClient, dispatchClient: dispatch.Http, config: FaciaConfig, ec: ExecutionContext): Response[Collection] = {
     val fCollectionJson = Facia.getCollectionJson(id)
     val fFrontsJson = Facia.getFrontsJson
@@ -46,7 +46,7 @@ object FAPI {
     ???
   }
 
-  def backfill(collection: Collection, adjustSearchQuery: AdjustSearchQuery = ContentApi.doNotChangeSearchQuery, adjustItemQuery: AdjustItemQuery = ContentApi.doNotChangeItemQuery)
+  def backfill(collection: Collection, adjustSearchQuery: AdjustSearchQuery = identity, adjustItemQuery: AdjustItemQuery = identity)
               (implicit capiClient: GuardianContentClient, ec: ExecutionContext): Response[List[FaciaCard]] = {
     // create backfill query
     // execute backfill query

@@ -13,8 +13,6 @@ import scala.concurrent.{ExecutionContext, Future}
 object ContentApi {
   type AdjustSearchQuery = SearchQuery => SearchQuery
   type AdjustItemQuery = ItemQuery => ItemQuery
-  val doNotChangeSearchQuery: AdjustSearchQuery = identity
-  val doNotChangeItemQuery: AdjustItemQuery = identity
 
   def buildHydrateQuery(client: GuardianContentClient, ids: List[String]): SearchQuery = {
     client.search
