@@ -26,6 +26,10 @@ object FAPI {
     } yield front
   }
 
+  /**
+   * Fetches the collection information for the given id by resolving info out of the fronts config
+   * and the collection's own config JSON.
+   */
   def getCollection(id: String, adjustSearchQuery: AdjustSearchQuery = identity)
                    (implicit capiClient: GuardianContentClient, dispatchClient: dispatch.Http, config: FaciaConfig, ec: ExecutionContext): Response[Collection] = {
     val fCollectionJson = Facia.getCollectionJson(id)
@@ -46,12 +50,23 @@ object FAPI {
     ???
   }
 
-  def backfill(collection: Collection, adjustSearchQuery: AdjustSearchQuery = identity, adjustItemQuery: AdjustItemQuery = identity)
+  /**
+   * Fetches content for the given backfill query. The query can be manipulated for different
+   * requirements by providing adjustment functions. The results then have their facia metadata
+   * resolved using the collection information.
+   */
+  def backfill(backfillQuery: String, collection: Collection,
+               adjustSearchQuery: AdjustSearchQuery = identity, adjustItemQuery: AdjustItemQuery = identity)
               (implicit capiClient: GuardianContentClient, ec: ExecutionContext): Response[List[FaciaCard]] = {
-    // create backfill query
-    // execute backfill query
-    // resolve facia metadata from collection
-    // return results
-    ???
+    val query = ContentApi.buildBackfillQuery(capiClient, backfillQuery)
+      .right.map(adjustSearchQuery)
+      .left.map(adjustItemQuery)
+    val response = ContentApi.getBackfillResponse(capiClient, query)
+    for {
+      backfillContent <- ContentApi.backfillContentFromResponse(response)
+    } yield {
+      // resolve facia metadata to convert content list -> facia card list
+      Nil
+    }
   }
 }

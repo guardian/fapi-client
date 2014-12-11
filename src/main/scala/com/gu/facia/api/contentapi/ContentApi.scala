@@ -2,12 +2,11 @@ package com.gu.facia.api.contentapi
 
 import java.net.URI
 
-import com.gu.contentapi.client.{GuardianContentApiError, GuardianContentClient}
+import com.gu.contentapi.client.GuardianContentClient
 import com.gu.contentapi.client.model._
-import com.gu.facia.api.{CapiError, ApiError, Response}
-import org.json4s.MappingException
+import com.gu.facia.api.{CapiError, Response}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 
 object ContentApi {
@@ -29,7 +28,7 @@ object ContentApi {
     searchResponse.results.toSet
   }
 
-  def backfillQuery(client: GuardianContentClient, apiQuery: String): Either[ItemQuery, SearchQuery] = {
+  def buildBackfillQuery(client: GuardianContentClient, apiQuery: String): Either[ItemQuery, SearchQuery] = {
     val uri = new URI(apiQuery.replaceAllLiterally("|", "%7C").replaceAllLiterally(" ", "%20"))
     val path = uri.getPath
     val params = Option(uri.getQuery).map(parseQueryString).getOrElse(Nil).map {
@@ -44,10 +43,31 @@ object ContentApi {
       val queryWithParams = searchQuery.withParameters(params.map { case (k, v) => k -> searchQuery.StringParameter(k, Some(v)) }.toMap)
       Right(queryWithParams)
     } else {
-      val itemQuery = ItemQuery()
+      val itemQuery = ItemQuery(Some(path))
       val queryWithParams = itemQuery.withParameters(params.map { case (k, v) => k -> itemQuery.StringParameter(k, Some(v)) }.toMap)
       Left(itemQuery)
     }
+  }
+
+  def getBackfillResponse(client: GuardianContentClient, query: Either[ItemQuery, SearchQuery])
+                         (implicit ec: ExecutionContext): Either[Response[ItemResponse], Response[SearchResponse]] = {
+    query.right.map { itemQuery =>
+      Response.Async.Right(client.getResponse(itemQuery)) recover { err =>
+        CapiError(s"Failed to get backfill response ${err.message}", err.cause)
+      }
+    }.left.map { searchQuery =>
+      Response.Async.Right(client.getResponse(searchQuery)) recover { err =>
+        CapiError(s"Failed to get backfill response ${err.message}", err.cause)
+      }
+    }
+  }
+
+  def backfillContentFromResponse(response: Either[Response[ItemResponse], Response[SearchResponse]])
+                                 (implicit ec: ExecutionContext): Response[List[Content]] = {
+    response.fold(
+      _.map(_.results),
+      _.map(_.results)
+    )
   }
 
   def parseQueryString(queryString: String): Seq[(String, String)] = {

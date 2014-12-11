@@ -1,6 +1,5 @@
 package com.gu.facia.api.facia
 
-import com.gu.contentapi.client.GuardianContentClient
 import com.gu.facia.api._
 import com.gu.facia.api.config.FaciaConfig
 import com.gu.facia.api.http.HttpResponse
