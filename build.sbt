@@ -7,7 +7,8 @@ lazy val root = (project in file(".")).
     libraryDependencies ++= Seq(
       "com.gu" %% "content-api-client" % "3.8-SNAPSHOT",
       "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
-      "com.gu" %% "facia-api-client" % "0.14"
+      "com.gu" %% "facia-api-client" % "0.14",
+      "org.mockito" % "mockito-all" % "1.10.8" % "test"
     ),
     resolvers ++= Seq(
       Resolver.file("Local", file( Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
