@@ -1,14 +1,20 @@
 package com.gu.facia.api.integration
 
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.services.s3.AmazonS3Client
 import com.gu.facia.api.FAPI
+import com.gu.facia.client.{AmazonSdkS3Client, ApiClient}
 import lib.IntegrationTestConfig
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Span}
-import org.scalatest.{FreeSpec, ShouldMatchers}
+import org.scalatest.{Ignore, FreeSpec, ShouldMatchers}
 
-
+@Ignore
 class IntegrationTest extends FreeSpec with ShouldMatchers with ScalaFutures with IntegrationTestConfig {
   implicit val patience = PatienceConfig(Span(500, Millis))
+
+  val amazonS3Client = new AmazonS3Client(new BasicAWSCredentials("key", "secret-key"))
+  implicit val apiClient: ApiClient = ApiClient("aws-frontend-store", "DEV", AmazonSdkS3Client(amazonS3Client))
 
   "getFronts" - {
     "should return a set of Front instances from the fronts JSON" in {

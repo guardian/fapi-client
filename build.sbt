@@ -6,7 +6,11 @@ lazy val root = (project in file(".")).
     scalaVersion := "2.11.4",
     libraryDependencies ++= Seq(
       "com.gu" %% "content-api-client" % "3.8-SNAPSHOT",
-      "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
+      "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
+      "com.gu" %% "facia-api-client" % "0.14"
     ),
-    resolvers += Resolver.file("Local", file( Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
+    resolvers ++= Seq(
+      Resolver.file("Local", file( Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
+      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
+      )
   )
