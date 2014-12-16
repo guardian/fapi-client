@@ -1,6 +1,6 @@
 package com.gu.facia.api
 
-import com.gu.contentapi.client.model.ContentType
+import com.gu.contentapi.client.model.Content
 import org.joda.time.DateTime
 
 
@@ -44,7 +44,7 @@ private[api] case class SemiRawCollection(
 
 case class FaciaCard(
   id: String,
-  content: ContentType,
+  content: Content,
   frontPublicationDate: Option[DateTime],
   headline: Option[String],
   trailText: Option[String],
